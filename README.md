@@ -1,4 +1,4 @@
-# Frames by Sunnada — Photography Portfolio
+# Frames by Sunanda — Photography Portfolio
 
 A premium, cinematic photography portfolio website for luxury brand **Frames by Sunnada** by Sunnada Kommadi.
 
