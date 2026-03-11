@@ -20,15 +20,23 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --black: #0a0a0a;
-      --charcoal: #141414;
-      --charcoal-mid: #1e1e1e;
-      --charcoal-light: #2a2a2a;
-      --white: #f5f2ee;
-      --white-muted: rgba(245,242,238,0.55);
-      --gold: #c9a96e;
-      --gold-light: #e2c89a;
-      --gold-dim: rgba(201,169,110,0.15);
+      --black: #070608;
+      --charcoal: #0f0d10;
+      --charcoal-mid: #191620;
+      --charcoal-light: #241f2e;
+      --white: #f2e8d9;
+      --white-muted: rgba(242,232,217,0.50);
+      --white-soft: rgba(242,232,217,0.82);
+      --gold: #c8a96a;
+      --gold-light: #e8cfa0;
+      --gold-dim: rgba(200,169,106,0.14);
+      /* Rich accent palette */
+      --champagne: #eddcb8;
+      --champagne-dim: rgba(237,220,184,0.15);
+      --rose-gold: #c4846a;
+      --burgundy: #6b2d3e;
+      --burgundy-dim: rgba(107,45,62,0.18);
+      --deep-teal: #1a3a3a;
       --serif: 'Cormorant Garamond', Georgia, serif;
       --sans: 'Jost', sans-serif;
     }
@@ -98,29 +106,93 @@
       cursor: none;
     }
 
-    /* ─── Custom Cursor ─────────────────────────────── */
-    #cursor {
+    /* ─── Cinematic Cursor ─────────────────────────────── */
+    #cursor-dot {
       position: fixed; top: 0; left: 0;
-      width: 8px; height: 8px;
-      background: var(--gold);
+      width: 6px; height: 6px;
+      background: var(--champagne);
       border-radius: 50%;
       pointer-events: none;
       z-index: 9999;
-      transition: transform 0.15s ease, opacity 0.3s;
       transform: translate(-50%, -50%);
+      transition: width 0.25s, height 0.25s, background 0.3s, opacity 0.3s;
+      mix-blend-mode: difference;
     }
     #cursor-ring {
       position: fixed; top: 0; left: 0;
-      width: 36px; height: 36px;
-      border: 1px solid rgba(201,169,110,0.5);
+      width: 38px; height: 38px;
       border-radius: 50%;
       pointer-events: none;
-      z-index: 9998;
-      transition: transform 0.45s cubic-bezier(0.23,1,0.32,1), width 0.3s, height 0.3s, border-color 0.3s;
+      z-index: 9997;
       transform: translate(-50%, -50%);
+      /* Double ring — outer border + inner glow */
+      border: 1px solid rgba(200,169,106,0.55);
+      box-shadow: 0 0 0 1px rgba(237,220,184,0.08) inset,
+                  0 0 12px rgba(200,169,106,0.06);
+      transition: width 0.4s cubic-bezier(0.23,1,0.32,1),
+                  height 0.4s cubic-bezier(0.23,1,0.32,1),
+                  border-color 0.35s,
+                  box-shadow 0.35s,
+                  opacity 0.3s;
     }
-    body:hover #cursor { opacity: 1; }
-    a:hover ~ #cursor, button:hover ~ #cursor { transform: translate(-50%,-50%) scale(2.5); }
+    #cursor-trail {
+      position: fixed; top: 0; left: 0;
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9996;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(200,169,106,0.07) 0%, transparent 70%);
+      transition: opacity 0.4s;
+    }
+
+    /* Hover state — cursor expands and glows */
+    body.cursor-hover #cursor-dot {
+      width: 10px; height: 10px;
+      background: var(--gold-light);
+    }
+    body.cursor-hover #cursor-ring {
+      width: 56px; height: 56px;
+      border-color: rgba(200,169,106,0.9);
+      box-shadow: 0 0 0 1px rgba(237,220,184,0.15) inset,
+                  0 0 24px rgba(200,169,106,0.18);
+    }
+    body.cursor-hover #cursor-trail {
+      width: 100px; height: 100px;
+    }
+
+    /* Click state — pulse */
+    body.cursor-click #cursor-ring {
+      width: 28px; height: 28px;
+      border-color: var(--champagne);
+      transition-duration: 0.12s;
+    }
+
+    /* Image hover — crosshair lens mode */
+    body.cursor-image #cursor-dot {
+      width: 3px; height: 3px;
+      background: var(--champagne);
+    }
+    body.cursor-image #cursor-ring {
+      width: 48px; height: 48px;
+      border-color: rgba(237,220,184,0.7);
+      border-radius: 50%;
+      /* Crosshair lines via box-shadow trick */
+      box-shadow:
+        0 -20px 0 0.5px rgba(237,220,184,0.4),
+        0  20px 0 0.5px rgba(237,220,184,0.4),
+        -20px 0 0 0.5px rgba(237,220,184,0.4),
+         20px 0 0 0.5px rgba(237,220,184,0.4),
+        0 0 0 1px rgba(237,220,184,0.06) inset;
+    }
+
+    /* Text hover — I-beam expand */
+    body.cursor-text #cursor-ring {
+      width: 3px; height: 28px;
+      border-radius: 2px;
+      border-color: rgba(200,169,106,0.6);
+    }
+    body.cursor-text #cursor-dot { opacity: 0; }
 
     /* ─── Scrollbar ─────────────────────────────── */
     ::-webkit-scrollbar { width: 3px; }
@@ -245,12 +317,17 @@
       font-family: var(--sans);
       font-size: 0.68rem;
       font-weight: 300;
-      letter-spacing: 0.4em;
+      letter-spacing: 0.45em;
       text-transform: uppercase;
-      color: var(--gold);
+      background: linear-gradient(90deg, var(--gold) 0%, var(--champagne) 50%, var(--gold) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: labelSheen 3s linear infinite;
       margin-bottom: 1.5rem;
       opacity: 0;
-      animation: fadeUp 1.2s 0.6s ease forwards;
+      animation: fadeUp 1.2s 0.6s ease forwards, labelSheen 3s 1.8s linear infinite;
     }
     .hero-title {
       font-family: var(--serif);
@@ -258,21 +335,25 @@
       font-weight: 300;
       line-height: 1;
       letter-spacing: -0.01em;
-      color: var(--white);
+      color: var(--champagne);
+      text-shadow: 0 4px 60px rgba(200,169,106,0.12);
       opacity: 0;
       animation: fadeUp 1.4s 0.9s ease forwards;
     }
     .hero-title em {
       font-style: italic;
-      color: var(--gold-light);
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--rose-gold) 50%, var(--champagne) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .hero-tagline {
       font-family: var(--sans);
       font-size: clamp(0.75rem, 1.5vw, 0.9rem);
       font-weight: 200;
-      letter-spacing: 0.25em;
+      letter-spacing: 0.3em;
       text-transform: uppercase;
-      color: var(--white-muted);
+      color: rgba(242,232,217,0.6);
       margin-top: 1.5rem;
       opacity: 0;
       animation: fadeUp 1.4s 1.2s ease forwards;
@@ -364,19 +445,39 @@
       font-family: var(--sans);
       font-size: 0.65rem;
       font-weight: 300;
-      letter-spacing: 0.4em;
+      letter-spacing: 0.45em;
       text-transform: uppercase;
-      color: var(--gold);
+      /* Rich gradient label — gold to champagne */
+      background: linear-gradient(90deg, var(--gold) 0%, var(--champagne) 60%, var(--gold) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: labelSheen 4s linear infinite;
       margin-bottom: 1.25rem;
+      display: inline-block;
+    }
+    @keyframes labelSheen {
+      0%   { background-position: 0% center; }
+      100% { background-position: 200% center; }
     }
     .section-title {
       font-family: var(--serif);
       font-size: clamp(2.5rem, 5vw, 5rem);
       font-weight: 300;
       line-height: 1.1;
-      color: var(--white);
+      /* Warm ivory — not flat white */
+      color: var(--champagne);
+      text-shadow: 0 2px 40px rgba(200,169,106,0.08);
     }
-    .section-title em { font-style: italic; color: var(--gold-light); }
+    .section-title em {
+      font-style: italic;
+      /* Rose-gold gradient on italic text */
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--rose-gold) 50%, var(--gold-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
 
     /* Reveal animation */
     .reveal {
@@ -1035,9 +1136,10 @@
   <div class="preloader-bar-wrap"><div class="preloader-bar" id="preloaderBar"></div></div>
 </div>
 
-<!-- Custom cursor -->
-<div id="cursor"></div>
+<!-- Cinematic Cursor -->
+<div id="cursor-trail"></div>
 <div id="cursor-ring"></div>
+<div id="cursor-dot"></div>
 
 <!-- Mobile Menu -->
 <div id="mobile-menu">
@@ -1665,30 +1767,52 @@
   loadFallbackImages(); // show instantly
   loadFromDrive();      // then upgrade with Drive images if configured
 
-  // ── Cursor
-  const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursor-ring');
-  let mx = 0, my = 0, rx = 0, ry = 0;
+  // ── Cinematic Cursor — multi-layer with context-aware states
+  const dot   = document.getElementById('cursor-dot');
+  const ring  = document.getElementById('cursor-ring');
+  const trail = document.getElementById('cursor-trail');
+  let mx = 0, my = 0, rx = 0, ry = 0, tx = 0, ty = 0;
+
   document.addEventListener('mousemove', e => {
     mx = e.clientX; my = e.clientY;
-    cursor.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`;
+    dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`;
   });
-  function animateRing() {
-    rx += (mx - rx) * 0.12;
-    ry += (my - ry) * 0.12;
-    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%,-50%)`;
-    requestAnimationFrame(animateRing);
+
+  // Ring follows with lag, trail with more lag
+  function animateCursor() {
+    rx += (mx - rx) * 0.13;
+    ry += (my - ry) * 0.13;
+    tx += (mx - tx) * 0.07;
+    ty += (my - ty) * 0.07;
+    ring.style.transform  = `translate(${rx}px, ${ry}px) translate(-50%,-50%)`;
+    trail.style.transform = `translate(${tx}px, ${ty}px) translate(-50%,-50%)`;
+    requestAnimationFrame(animateCursor);
   }
-  animateRing();
-  document.querySelectorAll('a, button, .portfolio-item').forEach(el => {
+  animateCursor();
+
+  // Click pulse
+  document.addEventListener('mousedown', () => document.body.classList.add('cursor-click'));
+  document.addEventListener('mouseup',   () => document.body.classList.remove('cursor-click'));
+
+  // Context-aware cursor states
+  const hoverEls   = document.querySelectorAll('a, button, .filter-btn, .hero-dot, .portfolio-expand');
+  const imageEls   = document.querySelectorAll('.portfolio-item, .featured-img, .about-image-wrap');
+  const textEls    = document.querySelectorAll('p, h1, h2, h3, li, label, .about-body');
+
+  hoverEls.forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+  imageEls.forEach(el => {
     el.addEventListener('mouseenter', () => {
-      ring.style.width = '60px'; ring.style.height = '60px';
-      ring.style.borderColor = 'rgba(201,169,110,0.7)';
+      document.body.classList.remove('cursor-hover');
+      document.body.classList.add('cursor-image');
     });
-    el.addEventListener('mouseleave', () => {
-      ring.style.width = '36px'; ring.style.height = '36px';
-      ring.style.borderColor = 'rgba(201,169,110,0.5)';
-    });
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-image'));
+  });
+  textEls.forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-text'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-text'));
   });
 
   // ── Nav scroll
