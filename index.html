@@ -753,27 +753,46 @@
     .form-group input,
     .form-group select,
     .form-group textarea {
-      background: rgba(255,255,255,0.03);
-      border: none;
-      border-bottom: 1px solid rgba(245,242,238,0.15);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(201,169,110,0.25);
+      border-radius: 2px;
       color: var(--white);
       font-family: var(--sans);
       font-size: 0.9rem;
       font-weight: 200;
-      padding: 0.85rem 0;
+      padding: 0.9rem 1rem;
       outline: none;
-      transition: border-color 0.3s;
+      transition: border-color 0.3s, background 0.3s;
       resize: none;
       width: 100%;
     }
-    .form-group select { appearance: none; background-image: none; }
-    .form-group select option { background: var(--charcoal); }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(245,242,238,0.3); }
+    .form-group select { appearance: none; }
+    .form-group select option { background: var(--charcoal-mid); color: var(--white); }
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-      border-bottom-color: var(--gold);
+      border-color: var(--gold);
+      background: rgba(201,169,110,0.06);
     }
-    .form-group textarea { min-height: 120px; }
+    html.light .form-group input,
+    html.light .form-group select,
+    html.light .form-group textarea {
+      background: rgba(0,0,0,0.04);
+      border-color: rgba(154,110,46,0.35);
+      color: var(--white);
+    }
+    html.light .form-group input::placeholder,
+    html.light .form-group textarea::placeholder { color: rgba(26,24,20,0.35); }
+    html.light .form-group input:focus,
+    html.light .form-group select:focus,
+    html.light .form-group textarea:focus {
+      border-color: var(--gold);
+      background: rgba(154,110,46,0.06);
+    }
+    html.light .form-group select option { background: var(--charcoal-mid); color: #f5f2ee; }
+    .form-group textarea { min-height: 130px; }
     .form-submit {
       display: inline-flex; align-items: center; gap: 1rem;
       font-family: var(--sans);
@@ -789,6 +808,7 @@
       align-self: flex-start;
     }
     .form-submit:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
     /* ─── Footer ─────────────────────────────── */
     footer {
@@ -1295,7 +1315,7 @@
         <div class="contact-detail">
           <div class="contact-item">
             <span class="contact-item-label">Email</span>
-            <a href="/cdn-cgi/l/email-protection#deb6bbb2b2b19eb8acbfb3bbadbca7adabb0b0bfbabff0bdb1b3" class="contact-item-value"><span class="__cf_email__" data-cfemail="5e363b3232311e382c3f333b2d3c272d2b30303f3a3f703d3133">[email&#160;protected]</span></a>
+            <a href="#contact" class="contact-item-value" onclick="document.getElementById('message').focus();return false;">hello [at] framesbysunanda.com</a>
           </div>
           <div class="contact-item">
             <span class="contact-item-label">Instagram</span>
@@ -1310,7 +1330,7 @@
           <a href="#" class="social-link" aria-label="Instagram">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
           </a>
-          <a href="/cdn-cgi/l/email-protection#88e0ede4e4e7c8eefae9e5edfbeaf1fbfde6e6e9ece9a6ebe7e5" class="social-link" aria-label="Email">
+          <a href="#contact" class="social-link" aria-label="Email" onclick="document.getElementById('message').focus();return false;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
           </a>
           <a href="#" class="social-link" aria-label="Pinterest">
@@ -1319,7 +1339,8 @@
         </div>
       </div>
       <div class="reveal">
-        <form class="contact-form" onsubmit="handleForm(event)">
+        <form class="contact-form" id="contactForm" action="https://formspree.io/f/xpwzgkqv" method="POST">
+          <input type="hidden" name="_subject" value="New inquiry — Frames by Sunanda" />
           <div class="form-row">
             <div class="form-group">
               <label for="name">Your Name</label>
@@ -1350,6 +1371,9 @@
             <span>→</span>
           </button>
         </form>
+        <p id="form-success" style="display:none;font-family:var(--serif);font-style:italic;color:var(--gold);margin-top:1.5rem;font-size:1.05rem;">
+          ✓ Message sent — Sunanda will be in touch soon.
+        </p>
       </div>
     </div>
   </div>
@@ -1438,14 +1462,19 @@
     entries.forEach(e => {
       if (e.isIntersecting) {
         e.target.classList.add('visible');
-        // stagger children
         e.target.querySelectorAll('.testimonial-card').forEach((c, i) => {
           setTimeout(() => c.classList.add('visible'), i * 150);
         });
+        observer.unobserve(e.target);
       }
     });
-  }, { threshold: 0.12 });
+  }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
   revealEls.forEach(el => observer.observe(el));
+
+  // Fallback: after 3s ensure everything is visible (handles edge cases)
+  setTimeout(() => {
+    document.querySelectorAll('.reveal:not(.visible)').forEach(el => el.classList.add('visible'));
+  }, 3000);
 
   // ── Portfolio filter
   const filterBtns = document.querySelectorAll('.filter-btn');
@@ -1520,19 +1549,41 @@
     localStorage.setItem('fbs-theme', isLight ? 'light' : 'dark');
   });
 
-  // ── Contact form
-  function handleForm(e) {
-    e.preventDefault();
-    const btn = document.getElementById('submitBtn');
-    btn.innerHTML = '<span>Message Sent ✓</span>';
-    btn.style.background = '#2a5c45';
-    btn.style.color = '#f5f2ee';
-    setTimeout(() => {
-      btn.innerHTML = '<span>Send Message</span><span>→</span>';
-      btn.style.background = '';
-      btn.style.color = '';
-      e.target.reset();
-    }, 3500);
+  // ── Contact form (Formspree AJAX)
+  const contactForm = document.getElementById('contactForm');
+  if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.innerHTML = '<span>Sending…</span>';
+      btn.disabled = true;
+      try {
+        const res = await fetch(contactForm.action, {
+          method: 'POST',
+          body: new FormData(contactForm),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          contactForm.style.display = 'none';
+          document.getElementById('form-success').style.display = 'block';
+        } else {
+          btn.innerHTML = '<span>Try again →</span>';
+          btn.disabled = false;
+        }
+      } catch {
+        btn.innerHTML = '<span>Try again →</span>';
+        btn.disabled = false;
+      }
+    });
+  }
+
+  // ── Reconstruct email safely (avoids Cloudflare scraping plain mailto links)
+  const parts = ['hello', 'framesbysunanda', 'com'];
+  const emailEl = document.querySelector('.contact-item-value[href="#contact"]');
+  if (emailEl) {
+    const addr = parts[0] + '@' + parts[1] + '.' + parts[2];
+    emailEl.href = 'mailto:' + addr;
+    emailEl.textContent = addr;
   }
 </script>
 </body>
